@@ -1,0 +1,16 @@
+node_modules/
+dist/
+out/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+.agents/
+# generated artifacts kept out of git
+/tmp/
+*.filled.pdf
+
+# agent orchestration artifacts (not part of the app)
+.agents/
+

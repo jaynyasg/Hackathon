@@ -1,93 +1,62 @@
-# Hackathon
+# Agentic 2025 Form 1040 Assistant
 
+A warm, web-based chat agent that takes a W-2, has a short (≤5-question) conversation,
+fills an **official IRS 2025 Form 1040**, and returns a downloadable PDF — built on a
+harness that makes the four pillars (chat loop, tools, guardrails, observability) real
+and visible.
 
+**Live demo:** _set after deploying to Render — see "Deploy" below._
 
-## Getting started
+> Educational hackathon demo. Fake test data only — not tax advice, not e-filing.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Run locally (after install)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://labs.gauntletai.com/jaygodfrey/hackathon.git
-git branch -M main
-git push -uf origin main
+```powershell
+npm install
+$env:OPENAI_API_KEY = "sk-..."   # PowerShell;  bash: export OPENAI_API_KEY=sk-...
+npm start                         # -> http://localhost:3000  (set $env:PORT to override)
 ```
 
-## Integrate with your tools
+Open the URL, upload `assets/sample-w2.pdf` (a realistic fake W-2), answer the
+filing-status question, and download your completed 1040.
 
-* [Set up project integrations](https://labs.gauntletai.com/jaygodfrey/hackathon/-/settings/integrations)
+### Scripts
+| command | what it does |
+|---|---|
+| `npm start` / `npm run dev` | run the server (dev = hot reload) |
+| `npm run verify` | the gate: typecheck + 31 offline tests (deterministic, no network) |
+| `npm run eval:record` | live conversation eval (refund, scope refusal, MFJ) — uses OpenAI |
+| `npm run gen:w2` | regenerate `assets/sample-w2.pdf` |
 
-## Collaborate with your team
+## The four pillars (where to point)
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+- **Chat loop** — `src/agent/loop.ts`, `src/agent/session.ts`: full multi-turn state.
+- **Tools** — `src/agent/tools.ts`: 5 validated function tools; the only way numbers or
+  PDFs are produced. The math tool calls a pure engine — the LLM never computes.
+- **Guardrails** — Zod boundary contract (`src/shared/contract.ts`) validates every
+  request and every tool call; frozen scope prompt (`src/agent/prompt.ts`); ≤5-question
+  budget (enforced + shown); reply guard (`src/agent/guard.ts`); SSNs never logged/returned.
+- **Observability** — `src/agent/observability.ts` + `/api/trace` + the live trail panel
+  in the UI: per-turn latency, tokens, $/run, tool calls, guardrail hits, p95, error %.
 
-## Test and Deploy
+## Correctness
 
-Use the built-in continuous integration in GitLab.
+- `src/tax/engine.ts` — pure 2025 tax engine (IRS Tax-Table method under $100k).
+- `src/pdf/fieldMap2025.ts` + `fill.ts` — official-form fill; the field map is verified
+  against the real `f1040.pdf` and round-trip-checked.
+- `test/` — 31 tests pin the tax math, the field map, W-2 extraction, and the agent tools.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+## Deploy (Render, free) — `render.yaml` Blueprint included
 
-***
+1. Push this repo to a Git remote (this project's origin is GitLab:
+   `labs.gauntletai.com/jaygodfrey/hackathon`). Render also supports GitHub/GitLab.
+2. Render Dashboard → **New + → Blueprint** → pick the repo (or **New Web Service** with
+   build `npm install`, start `npm start`).
+3. Set **`OPENAI_API_KEY`** as a secret env var (it's `sync:false` in the Blueprint, so it
+   never lives in the repo). `CHAT_MODEL` defaults to `gpt-4o-mini`.
+4. Render builds and serves it; health check is `GET /api/health`. Paste the resulting
+   public URL at the top of this README.
 
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+### Fully-automated deploy (optional)
+With a `RENDER_API_KEY` and the repo pushed to a remote, deployment can be driven from the
+Render API/CLI instead of the dashboard. Provide the key and I can wire that path.

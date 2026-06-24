@@ -1,0 +1,23 @@
+# Render Blueprint — deploys the assistant as a single free Node web service.
+#
+# To deploy:  Render Dashboard -> New -> Blueprint -> pick this repo (or
+# New -> Web Service with the same build/start commands). Then set the
+# OPENAI_API_KEY secret in the dashboard (it is sync:false here on purpose,
+# so the key never lives in the repo).
+services:
+  - type: web
+    name: agentic-1040-assistant
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false # set this as a secret in the Render dashboard
+      - key: CHAT_MODEL
+        value: gpt-4o-mini
+      - key: NODE_VERSION
+        value: "22"

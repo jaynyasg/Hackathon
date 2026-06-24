@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ada · 2025 Form 1040 Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">Ada · <span class="muted">2025 Form 1040 Assistant</span></div>
+      <div class="budget" title="Question budget (max 5)">
+        <span id="qcount">0</span><span class="muted">/5 questions</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="chat card">
+        <div id="messages" class="messages" aria-live="polite"></div>
+        <div id="downloadBar" class="download-bar hidden">
+          <button id="downloadBtn" class="btn primary">⬇ Download your completed Form 1040</button>
+        </div>
+        <form id="composer" class="composer">
+          <label class="upload-btn" title="Upload your W-2 (PDF)">
+            📎
+            <input id="file" type="file" accept="application/pdf" hidden />
+          </label>
+          <input
+            id="input"
+            class="text-input"
+            type="text"
+            placeholder="Type your reply…"
+            autocomplete="off"
+          />
+          <button class="btn primary" type="submit">Send</button>
+        </form>
+      </section>
+
+      <aside class="trail card">
+        <div class="trail-head">
+          <h2>Observation trail</h2>
+          <p class="muted small">Every turn the agent takes — latency, cost, tools, guardrails.</p>
+          <div class="metrics" id="metrics"></div>
+          <div class="state" id="state"></div>
+        </div>
+        <div id="turns" class="turns"></div>
+      </aside>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
