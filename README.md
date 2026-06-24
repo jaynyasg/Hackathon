@@ -5,7 +5,8 @@ fills an **official IRS 2025 Form 1040**, and returns a downloadable PDF — bui
 harness that makes the four pillars (chat loop, tools, guardrails, observability) real
 and visible.
 
-**Live demo:** _set after deploying to Render — see "Deploy" below._
+**Live demo:** https://agentic-1040-assistant.onrender.com
+_(Free Render instance — the first request after idle can take ~30–60s to cold-start; give it a moment.)_
 
 > Educational hackathon demo. Fake test data only — not tax advice, not e-filing.
 
